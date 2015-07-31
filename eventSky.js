@@ -4,12 +4,8 @@
 
 (function () {
 	// local use error logger
-	var error = function(msg) {
-		// TODO
-		// check for errorShelter module (https://github.com/crobinson42/error-shelter.git)
-		// if (errorShelter) ... then use it
-
-		throw new Error('eventSky.js: ' + msg);
+	var error = function(msg,options) {
+		throw new Error('eventSky.js: ' + msg, options || null);
 	};
 
 	var init = function () {
