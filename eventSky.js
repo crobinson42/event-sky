@@ -13,14 +13,32 @@
 		console.dir(this);
 	};
 
+	// event constructor
+	function Event(name,triggerPoints) {
+		this.name = {
+			before 	: [],
+			on 		: [],
+			after 	: []
+		};
+
+		return this;
+	}
+
 	// The main object that houses event on/off & handlers
 	var eventStack = {
 		/*
 		'eventName' : {
-			'before' : [{'eventId' : 'handler1' }, {'eventId' : 'handler2'}],
-			'on' : [{'eventId' : 'handler1' }, {'eventId' : 'handler2'}],
-			'after' : [{'eventId' : 'handler1' }, {'eventId' : 'handler2'}],
 		}
+		'id' 	: {
+			'eventId' : eventName,
+		}
+		mailAlert = event.on('newMessage',null, function (data) {
+			// do work
+		});
+		event.trigger('newMessage', function (data) {
+
+		});
+		event.off(mailAlert)
 		*/
 	};
 
