@@ -2,113 +2,185 @@
 // https://github.com/crobinson42/event-sky
 // Cory Robinson
 
+// TODO:
+/*
+	-readme about window.eventSky
+	-write readme info for init() & firehose
+
+*/
+
+
+
 (function () {
 	// local use error logger
 	var error = function(msg,options) {
 		throw new Error('eventSky.js: ' + msg, options || null);
 	};
 
-	var init = function () {
-		alert('Event Sky Initialized!');
-		console.dir(this);
+	var firehose = function (input,options) {
+		if (firehose.active) {
+			console.log(input,options);
+		}
 	};
+	firehose.active = false;
 
-	// event constructor
-	function Event(name,triggerPoints) {
-		this.name = {
-			before 	: [],
-			on 		: [],
-			after 	: []
-		};
-
-		return this;
-	}
+	var init = function (options) {
+		if (options) {
+			firehose.active = (options.firehose) ? true : false;
+		}
+	};
 
 	// The main object that houses event on/off & handlers
 	var eventStack = {
 		/*
-		'eventName' : {
+		newMail : {
+			before : {},
+			on :	{
+				'12345' : function(){}
+			},
+			after : {}
 		}
-		'id' 	: {
-			'eventId' : eventName,
-		}
-		mailAlert = event.on('newMessage',null, function (data) {
-			// do work
-		});
-		event.trigger('newMessage', function (data) {
-
-		});
-		event.off(mailAlert)
 		*/
+	};
+	// a map of event id's for eventStack
+	var eventStackIdMap = {
+		/*
+			12345 = {
+				event:'eventName',
+				when:'on/before/after'
+			}
+		*/
+	};
+
+	//  eventStackIdMap constructor
+	var EventStackIdMap = function(when,event) {
+		this.event 	= event;
+		this.when 	= when;
+		return this;
+	};
+
+	// event constructor
+	var Event = function() {
+		this.before 	= {};
+		this.on 			= {};
+		this.after	 	= {};
+		return this;
 	};
 
 	var generateEventId = function () {
 		return new Date().getTime() + Math.floor(Math.random() * 100);
 	};
 
-	var on = function (event, options, handler) {
-		// README
-		// 'event', 'handler' == required
-		// 'options' == optional
-		// this method tests if event is an object and if it is
-		// 	it assumes a structure like so:
-		//		.on({ event : 'click', 
-		//			options : {opt1:null, opt2:null}, 
-		//			handler : function() });
-		//
-		// If event is a string, it tests if the 2nd arg is a function 
-		// 	or an options object
+	// ensures the event is listed as a key in eventStack
+	var ensureEventExists = function(event) {
+		if (!event) {
+			error('ensureEventExists was not passed an event.');
+	 		return false;
+		}
+		// return if event key already exists
+		if (eventStack && eventStack[event]) { return true; }
+		// create event key & event obj
+		eventStack[event] = new Event();
+		return true;
+	};
+
+	// This is called/used by .on(), .after(), .before()
+	addEventListenerAction = function (when,event,options,handler) {
+		console.log(when,event,options,handler);
 		var eventType,
 			optionsObj,
 			handlerMethod,
 			eventListenerId = generateEventId();
 
-		if (event && typeof event == 'object') {
-			eventType = (event.event) 
-				? event.event 
+		eventType = (event)
+				? event
 				: error('No event specified.');
-			optionsObj = event.options || null;
-			handlerMethod = event.handler || event.handlerMethod || null;
-		} 
-		else {
-			eventType = event 
-					? event 
-					: error('No event specified.');
-			optionsObj = options && typeof options != 'function'
+		optionsObj = (options && typeof options != 'function')
+				? options
+				: null;
+		handlerMethod = (optionsObj)
+				? optionsObj
+				: (!handler)
 					? options
 					: null;
-			handlerMethod = (!optionsObj) 
-					? optionsObj 
-					: (handlerMethod) 
-						? handlerMethod 
-						: null;
+
+		// now verify all vars are set to proceed
+		console.log(when,eventType,optionsObj,handlerMethod);
+		if (!when || !eventType || !handlerMethod) {
+			return error(when + '() cannot be set due to invalid arguments.')
 		}
 
-		eventStack[event] = handler;
+		ensureEventExists(eventType);
+
+		// add to event stack
+		eventStack[eventType][when][eventListenerId] = handlerMethod;
+		// add to eventStackIdMap
+		eventStackIdMap[eventListenerId] = new EventStackIdMap(when,eventType);
 
 		return eventListenerId;
 	};
 
-	var before = function (event, options, handler) {
+	var on = function (event, options, handler) {
+		// README
+		// * see addEventListenerAction() for argument requirements
+		return addEventListenerAction('on',event,options,handler);
+	};
 
+	var before = function (event, options, handler) {
+		// README
+		// * see addEventListenerAction() for argument requirements
+		return addEventListenerAction('before',event,options,handler);
 	};
 
 	var after = function (event, options, handler) {
-
+		// README
+		// * see addEventListenerAction() for argument requirements
+		return addEventListenerAction('after',event,options,handler);
 	};
 
 	var off = function (eventOrId, options) {
-
+		// if event, overwrite key w/ new event in eventStack
+		if (eventOrId && eventStack[eventOrId]) {
+			// delete  eventStack[eventOrId];
+			eventStack[eventOrId] = new Event();
+		}
+		else { // if id, only remove key:val
+			var map = eventStackIdMap[eventOrId];
+			// lookup id
+			if (!map) { return error('off() cannot map event ID.'); }
+			delete eventStackIdMap[eventOrId];
+			delete eventStack[map.event][map.when][eventOrId];
+		}
 	};
 
-	var trigger = function (event) {
-
+	var trigger = function (eventOrId,data) {
+			var map = eventStackIdMap[eventOrId];
+			if (typeof map == 'object') { // eventOrId is an ID..
+				// only trigger method assigned to this id
+				firehose('Trigger:'+map.event +':'+map.when+':'+eventOrId);
+				eventStack[map.event][map.when][eventOrId](data);
+			} else { // eventOrId is an event
+				// trigger event in sequences
+				if (eventStack[eventOrId]) {
+					Object.keys(eventStack[eventOrId].before).forEach(function(i) {
+						firehose('Trigger:'+eventOrId +':before:*');
+						eventStack[eventOrId].before[i](data);
+					});
+					Object.keys(eventStack[eventOrId].on).forEach(function(i) {
+						firehose('Trigger:'+eventOrId +':on:*');
+						eventStack[eventOrId].on[i](data);
+					});
+					Object.keys(eventStack[eventOrId].after).forEach(function(i) {
+						firehose('Trigger:'+eventOrId +':after:*');
+						eventStack[eventOrId].after[i](data);
+					});
+				}
+			}
 	};
 
 	var getEventList = function () {
-
+		return Object.keys(eventStack);
 	};
-
 
 	// Exposed methods
 	window.eventSky = {
@@ -123,12 +195,9 @@
 		off 		: off,
 		// trigger an event
 		trigger 	: trigger,
-		// 
 		// list of events
-		events 		: getEventList
+		events 		: getEventList,
+		// dev
+		dev				:	{ eventStack : eventStack, eventMap : eventStackIdMap }
 	};
 })();
-
-
-
-
