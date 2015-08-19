@@ -4,10 +4,7 @@
 
 // TODO:
 /*
-	-readme about window.eventSky
-	-write readme info for init() & firehose
 	-add firehose to each method
-
 */
 
 
