@@ -5,6 +5,7 @@
 // TODO:
 /*
 	-add firehose to each method
+	-add .one('event',callback) <- fires callback once them goes away
 */
 
 
