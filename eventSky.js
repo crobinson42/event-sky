@@ -4,6 +4,9 @@
 
 // TODO:
 /*
+	- add environment config/init options ie: window, global, etc.
+			*see mixin for GLOBAL/window assignment style
+	- add namespacing for global var
 	-add firehose to each method
 	-add .one('event',callback) <- fires callback once them goes away
 */
@@ -18,7 +21,7 @@
 
 	var firehose = function (input,options) {
 		if (firehose.active) {
-			console.log(input,options);
+			console.log('FIREHOSE: ' + input,(options || ''));
 		}
 	};
 	firehose.active = false;
@@ -27,6 +30,7 @@
 		if (options) {
 			firehose.active = (options.firehose) ? true : false;
 		}
+		firehose('eventSky initialized...');
 	};
 
 	// The main object that houses event on/off & handlers
@@ -85,7 +89,8 @@
 
 	// This is called/used by .on(), .after(), .before()
 	addEventListenerAction = function (when,event,options,handler) {
-		console.log(when,event,options,handler);
+		// console.log(when,event,options,handler);
+		firehose('addEventListenerAction:'+when +':'+event+':'+options+':'+handler);
 		var eventType,
 			optionsObj,
 			handlerMethod,
@@ -104,9 +109,9 @@
 					: null;
 
 		// now verify all vars are set to proceed
-		console.log(when,eventType,optionsObj,handlerMethod);
+		// console.log(when,eventType,optionsObj,handlerMethod);
 		if (!when || !eventType || !handlerMethod) {
-			return error(when + '() cannot be set due to invalid arguments.')
+			return error(when + '() cannot be set due to invalid arguments.');
 		}
 
 		ensureEventExists(eventType);
