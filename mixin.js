@@ -19,8 +19,8 @@ if (window) {
     if (!window.eventSky) {
       throw new Error('eventSky is not initialized and cannot be found with "require(\'event-sky\')"');
     }
-    namespace = window.eventSky;
   }
+  namespace = window.eventSky;
 }
 // assume we're serverSide, phonegap or other environment
 else {
@@ -33,8 +33,8 @@ else {
     if (!GLOBAL.eventSky) {
       throw new Error('eventSky is not initialized and cannot be found with "require(\'event-sky\')"');
     }
-    namespace = GLOBAL.eventSky;
   }
+  namespace = GLOBAL.eventSky;
 }
 
 module.exports = namespace;
