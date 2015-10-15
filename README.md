@@ -10,6 +10,7 @@ The available trigger sequences are 'on', 'before', & 'after'. Each will return 
 var newMessageEventId = eventSky.on('newMessage', function callback(data) { *do something with data* });
                         eventSky.before('newMessage'...
                         eventSky.after('newMessage'...
+                        eventSky.once('newMessage'...
 ```
 To trigger an event by name or by eventId:
 ```
@@ -18,10 +19,13 @@ eventSky.trigger('newMessage', 'this string will get passed to the callback, it 
 OR
 ```
 eventSky.trigger(newMessageEventId, 'more data...');
+eventSky.trigger(newMessageEventId, { key : 'value...'});
 ```
 To remove an event:
 ```
 eventSky.off(newMessageEventId);
+eventSky.off([newMessageEventId1, newMessageEventId2, newMessageEventId3]);
+eventSky.off({ event : eventId });
 ```
 For development purposes you can initialize eventSky to see all event activity in the console:
 ```
@@ -31,3 +35,13 @@ ALSO
 ```
 console.dir(eventSky.dev);
 ```
+Configurable evnironment
+Node.js module:
+```
+GLOBAL.eventSky
+```
+Client/Browser:
+```
+window.eventSky
+```
+Configurable namespace - at the top of the eventSky.js file, you can config the variable 'namespace' to be whatever you prefer.
