@@ -4,21 +4,25 @@
 
 // TODO:
 /*
-	-add firehose to each method
-	-add .one('event',callback) <- fires callback once them goes away
+	
 */
 
 
 
 (function () {
+
+	var GLOBAL = window || GLOBAL || {};
+
+	var namespace = 'eventSky';
+
 	// local use error logger
 	var error = function(msg,options) {
-		throw new Error('eventSky.js: ' + msg, options || null);
+		throw new Error(namespace + '.js: ' + msg, options || null);
 	};
 
 	var firehose = function (input,options) {
 		if (firehose.active) {
-			console.log(input,options);
+			console.log('FIREHOSE: ' + input,(options || ''));
 		}
 	};
 	firehose.active = false;
@@ -27,6 +31,7 @@
 		if (options) {
 			firehose.active = (options.firehose) ? true : false;
 		}
+		firehose(namespace + ' initialized...');
 	};
 
 	// The main object that houses event on/off & handlers
@@ -63,6 +68,7 @@
 		this.before 	= {};
 		this.on 			= {};
 		this.after	 	= {};
+		this.once	 		= {};
 		return this;
 	};
 
@@ -84,29 +90,27 @@
 	};
 
 	// This is called/used by .on(), .after(), .before()
-	addEventListenerAction = function (when,event,options,handler) {
-		console.log(when,event,options,handler);
+	addEventListenerAction = function (when,event,options,handler,context) {
+		// console.log(when,event,options,handler,context);
+		firehose('addEventListenerAction:'+when +':'+event+':'+options+':'+handler);
 		var eventType,
 			optionsObj,
 			handlerMethod,
 			eventListenerId = generateEventId();
 
-		eventType = (event)
-				? event
-				: error('No event specified.');
-		optionsObj = (options && typeof options != 'function')
-				? options
-				: null;
-		handlerMethod = (optionsObj)
-				? optionsObj
-				: (!handler)
-					? options
-					: null;
+		eventType = (event) ? event : error('No event specified.');
+		optionsObj = (options && typeof options != 'function') ? options : null;
+		handlerMethod = (optionsObj) ? optionsObj : (!handler) ? options : null;
+
+		//check if context is specified and bind to handlerMethod
+		if (context) {
+			handlerMethod = handlerMethod.bind(context);
+		}
 
 		// now verify all vars are set to proceed
-		console.log(when,eventType,optionsObj,handlerMethod);
+		// console.log(when,eventType,optionsObj,handlerMethod);
 		if (!when || !eventType || !handlerMethod) {
-			return error(when + '() cannot be set due to invalid arguments.')
+			return error(when + '() cannot be set due to invalid arguments.');
 		}
 
 		ensureEventExists(eventType);
@@ -119,36 +123,69 @@
 		return eventListenerId;
 	};
 
-	var on = function (event, options, handler) {
+	var on = function (event, options, handler, context) {
 		// README
 		// * see addEventListenerAction() for argument requirements
-		return addEventListenerAction('on',event,options,handler);
+		return addEventListenerAction('on',event,options,handler, context);
 	};
 
-	var before = function (event, options, handler) {
+	var before = function (event, options, handler, context) {
 		// README
 		// * see addEventListenerAction() for argument requirements
-		return addEventListenerAction('before',event,options,handler);
+		return addEventListenerAction('before',event,options,handler, context);
 	};
 
-	var after = function (event, options, handler) {
+	var after = function (event, options, handler, context) {
 		// README
 		// * see addEventListenerAction() for argument requirements
-		return addEventListenerAction('after',event,options,handler);
+		return addEventListenerAction('after',event,options,handler, context);
 	};
 
+	var once = function (event, options, handler, context) {
+		// README
+		// * see addEventListenerAction() for argument requirements
+		return addEventListenerAction('once',event,options,handler, context);
+	};
+
+	/**
+	 * removes handler/action from an event or removes all events if eId is passed
+	 *
+	 * @param  {string/object/array} eventOrId  the event name or id of an event child
+	 *                                          or object/array of eventId/keys
+	 * @param  {object} options   [not used currently]
+	 */
 	var off = function (eventOrId, options) {
-		// if event, overwrite key w/ new event in eventStack
-		if (eventOrId && eventStack[eventOrId]) {
-			// delete  eventStack[eventOrId];
-			eventStack[eventOrId] = new Event();
+		// if eventOrId is object/array
+		if (typeof eventOrId === 'object') {
+			firehose('off invoked with object: ',eventOrId);
+			Object.keys(eventOrId).forEach(function (key) {
+				removeEvent(eventOrId[key]);
+			});
 		}
-		else { // if id, only remove key:val
-			var map = eventStackIdMap[eventOrId];
-			// lookup id
-			if (!map) { return error('off() cannot map event ID.'); }
-			delete eventStackIdMap[eventOrId];
-			delete eventStack[map.event][map.when][eventOrId];
+		else if (eventOrId instanceof Array) {
+			firehose('off invoked with array: ',eventOrId);
+			eventOrId.forEach(function (i) {
+				removeEvent(eventOrId[i]);
+			});
+		}
+		else {
+				removeEvent(eventOrId);
+		}
+
+		function removeEvent(e) {
+			firehose('removeEvent: ', e);
+			// if event, overwrite key w/ new event in eventStack
+			if (e && eventStack[e]) {
+				// delete  eventStack[e];
+				eventStack[e] = new Event();
+			}
+			else { // if id, only remove key:val
+				var map = eventStackIdMap[e];
+				// lookup id
+				if (!map) { return error('off() cannot map event ID.'); }
+				delete eventStackIdMap[e];
+				delete eventStack[map.event][map.when][e];
+			}
 		}
 	};
 
@@ -182,7 +219,7 @@
 	};
 
 	// Exposed methods
-	window.eventSky = {
+	GLOBAL[namespace] = {
 		init : init,
 		// subscribe to an event
 		on 			: on,
@@ -190,6 +227,8 @@
 		before 		: before,
 		// subscribe to be triggered after other
 		after 		: after,
+		// will only listen and fire once to an event
+		once 			: once,
 		// unsubscribe to an event
 		off 		: off,
 		// trigger an event
