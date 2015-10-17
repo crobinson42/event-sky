@@ -4,7 +4,7 @@
 
 // TODO:
 /*
-	
+
 */
 
 
@@ -96,15 +96,17 @@
 		var eventType,
 			optionsObj,
 			handlerMethod,
+			ctx,
 			eventListenerId = generateEventId();
 
 		eventType = (event) ? event : error('No event specified.');
 		optionsObj = (options && typeof options != 'function') ? options : null;
-		handlerMethod = (optionsObj) ? optionsObj : (!handler) ? options : null;
+		handlerMethod = (!optionsObj) ? options : (handler && (typeof handler === 'function')) ? handler : null;
+		ctx = (context) ? context : (handler) ? handler : null;
 
 		//check if context is specified and bind to handlerMethod
-		if (context) {
-			handlerMethod = handlerMethod.bind(context);
+		if (ctx) {
+			handlerMethod = handlerMethod.bind(ctx);
 		}
 
 		// now verify all vars are set to proceed
@@ -153,24 +155,35 @@
 	 * @param  {string/object/array} eventOrId  the event name or id of an event child
 	 *                                          or object/array of eventId/keys
 	 * @param  {object} options   [not used currently]
+	 * @return {string/array} 		Returns the event/eventId or array of events
+	 *                            removed
 	 */
 	var off = function (eventOrId, options) {
+		var returnValue;//string or array
+
 		// if eventOrId is object/array
 		if (typeof eventOrId === 'object') {
+			returnValue = [];
 			firehose('off invoked with object: ',eventOrId);
 			Object.keys(eventOrId).forEach(function (key) {
 				removeEvent(eventOrId[key]);
+				returnValue.push(key);
 			});
 		}
 		else if (eventOrId instanceof Array) {
+			returnValue = [];
 			firehose('off invoked with array: ',eventOrId);
 			eventOrId.forEach(function (i) {
 				removeEvent(eventOrId[i]);
+				returnValue.push(eventOrId[i]);
 			});
 		}
 		else {
 				removeEvent(eventOrId);
+				returnValue = eventOrId;
 		}
+
+		return returnValue;
 
 		function removeEvent(e) {
 			firehose('removeEvent: ', e);
