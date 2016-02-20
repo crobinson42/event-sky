@@ -1,6 +1,6 @@
 {
   "name": "event-sky",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "front-end event pub/sub utility",
   "main": "eventSky.js",
   "scripts": {
