@@ -13,7 +13,7 @@
 var namespace;
 
 // check if we're in a browser environment
-if (window) {
+if (typeof(window)!=='undefined') {
   if (!window.eventSky) {
     require('event-sky');
     if (!window.eventSky) {
