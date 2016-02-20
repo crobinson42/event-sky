@@ -4,14 +4,14 @@
 
 // TODO:
 /*
-	
+
 */
 
 
 
 (function () {
 
-	var GLOBAL = window || GLOBAL || {};
+	var GLOBAL_SCOPE = typeof(window)!=='undefined' ? 'window' : 'global';
 
 	var namespace = 'eventSky';
 
@@ -219,7 +219,7 @@
 	};
 
 	// Exposed methods
-	GLOBAL[namespace] = {
+	var API = {
 		init : init,
 		// subscribe to an event
 		on 			: on,
@@ -238,4 +238,7 @@
 		// dev
 		dev				:	{ eventStack : eventStack, eventMap : eventStackIdMap }
 	};
+
+	// expose to global scope
+	GLOBAL_SCOPE === 'window' ? window[namespace] = API : global[namespace] = API;
 })();
