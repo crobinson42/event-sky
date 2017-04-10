@@ -1,4 +1,7 @@
 # Event Sky (event-sky)
+
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
+
 An event aggregate utility for front-end apps.
  
 When designing front-end apps it's best to keep modules/features loosely coupled. A great method for accomplishing this is events. "Event Sky" was designed to help your apps work without knowing about eachother by utilizing the events with Event Sky.

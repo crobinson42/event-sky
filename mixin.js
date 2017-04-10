@@ -10,6 +10,34 @@
  * 		                                        *
  ***********************************************/
 
+
+// Exposed methods
+// var API = {
+// 	init : init,
+// 	// subscribe to an event
+// 	on 			: on,
+// 	// subscribe to be triggered before other
+// 	before 		: before,
+// 	// subscribe to be triggered after other
+// 	after 		: after,
+// 	// will only listen and fire once to an event
+// 	once 			: once,
+// 	// unsubscribe to an event
+// 	off 		: off,
+// 	// trigger an event
+// 	trigger 	: trigger,
+// 	// list of events
+// 	events 		: getEventList,
+// 	// dev
+// 	dev				:	{ eventStack : eventStack, eventMap : eventStackIdMap }
+// };
+//
+// // expose to global scope
+// GLOBAL_SCOPE === 'window' ? window[namespace] = API : global[namespace] = API;
+
+
+
+
 var namespace;
 
 // check if we're in a browser environment
