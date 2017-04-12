@@ -4,6 +4,7 @@
 // todo: look into cancellable handlers?
 // todo: write readme on how restrictToExpected helps predictability in teams and large apps, guide on file architecture
 
+import 'babel-polyfill'
 import utils from './utils'
 import config from './config'
 
