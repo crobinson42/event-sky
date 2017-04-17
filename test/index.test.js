@@ -1,11 +1,11 @@
 test('EventSky doesnt blow up', () => {
-	const EventSky = require('../src/main.js')
+	const EventSky = require('../src/main')
 
 	expect(typeof EventSky).toEqual('object')
 })
 
 test('EventSky has expected properties', () => {
-	const EventSky = require('../src/main.js')
+	const EventSky = require('../src/main')
 
 	expect(typeof EventSky.events).toEqual('object')
 

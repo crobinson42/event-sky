@@ -8,6 +8,7 @@
     "dev": "rollup -c --watch",
     "test": "jest --config=test/jest.config.json",
     "test:watch": "jest --config=test/jest.config.json --watch",
+    "test:coverage": "jest --config=test/jest.config.json --coverage",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {

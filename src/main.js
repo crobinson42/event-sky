@@ -17,47 +17,19 @@ class EventSky {
 
 		this._config = config
 		this._utils = utils
+
 		// map of events
 		this.events = {}
 		this._firehose = msg => this.config.firehose ? console.log(`EventSky Firehose >> ${msg}`) : null
 
-		// util to setup 'when' event handlers
-		const _addEventHandler = (when) => {
-			return (event, handler) => {
-				// verify params
-			if (typeof event !== 'string' || event.length < 1 || typeof handler !== 'function') {
-					console.warn(`EventSky warning: "${event}" event must be a string and handler must be a function - not set with .${when} handler`)
-
-					return this
-				}
-
-				// first check if we're restricting to expected only
-				if (this.config.restrictToExpected) {
-					if (!Object.keys(this.events).includes(event)) {
-						this._firehose(`"${event}" handler cannot be set because it is not an expected event "restrictToExpected = true"`)
-
-						return this
-					}
-				}
-
-				// ensure the event exists and is setup on the event store
-				if (!this.events[event]) {
-					this.events[event] = this._utils.createNewEventMap()
-				}
-
-				this.events[event].handlers++
-				const _handlerCount = this.events[event]._handlers++
-				const eventId = `${event}.${when}.${_handlerCount}`
-				this.events[event][when][eventId] = handler
-
-				return eventId
-			}
-		}
 		// setup 'when' event handlers
-		this.on = _addEventHandler('on')
-		this.once = _addEventHandler('once')
-		this.beforeAll = _addEventHandler('beforeAll')
-		this.afterAll = _addEventHandler('afterAll')
+		this.on = this._utils.curryWhenHandler.bind(this)('on')
+		this.once = this._utils.curryWhenHandler.bind(this)('once')
+		this.beforeAll = this._utils.curryWhenHandler.bind(this)('beforeAll')
+		this.afterAll = this._utils.curryWhenHandler.bind(this)('afterAll')
+
+		// extend a chain call for eventSky.off.all()
+		this.off.all = this.allOff.bind(this)
 	}
 
 	/**
@@ -68,21 +40,45 @@ class EventSky {
 	 * @returns {EventSky}
 	 */
 	off (eventOrId, handler) {
-		Object.keys(this.events).forEach(eventName => {
+		// iterate all events by names
+		Object.keys(this.events).forEach(_eventName => {
 			// iterate each 'when' event lifecycle and look for eventId or handler to remove
-			Object.keys(this.events[eventName]).forEach(eventWhen => {
-				if (!['beforeAll', 'on', 'once', 'afterAll'].includes(eventWhen)) return
-				// iterate each event of the current 'when' for event
-				Object.keys(this.events[eventName][eventWhen]).forEach(eventId => {
-					const del = (!handler && eventId === eventOrId) || (this.events[eventName][eventWhen][eventId] === handler)
+			Object.keys(this.events[_eventName]).forEach(_eventWhen => {
+				if (!['beforeAll', 'on', 'once', 'afterAll'].includes(_eventWhen)) return
 
-					if (del) {
-						delete this.events[eventName][eventWhen][eventId]
-						this.events[eventName].handlers--
+				// iterate each event of the current 'when' for event
+				Object.keys(this.events[_eventName][_eventWhen]).forEach(_eventId => {
+					const eventNameAndHandlerMatch = (
+							this.events[_eventName][_eventWhen][_eventId] === handler &&
+							_eventName === eventOrId
+						)
+					const eventIdMatch = (!handler && _eventId === eventOrId)
+
+					const performDelete = (
+							eventNameAndHandlerMatch ||
+							eventIdMatch
+						)
+
+					if (performDelete) {
+						delete this.events[_eventName][_eventWhen][_eventId]
+						this.events[_eventName].handlers--
 					}
 				})
 			})
 		})
+
+		return this
+	}
+
+	/**
+	 * Turn off all handlers for an event name
+	 * @param eventName {string} the name of the event
+	 * @returns {EventSky}
+	 */
+	allOff (eventName) {
+		delete this.events[eventName]
+
+		this.events[eventName] = this._utils.createNewEventMap()
 
 		return this
 	}
