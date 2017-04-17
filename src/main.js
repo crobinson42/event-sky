@@ -77,6 +77,7 @@ class EventSky {
 	 */
 	allOff (eventName) {
 		delete this.events[eventName]
+		this._firehose(`.off.all("${eventName}") removed all event handlers`)
 
 		this.events[eventName] = this._utils.createNewEventMap()
 
