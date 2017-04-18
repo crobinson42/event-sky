@@ -9,12 +9,13 @@ export default {
 	format: 'umd',
 	moduleName: 'EventSky',
 	plugins: [
+		babel({
+			exclude: 'node_modules/**',
+			runtimeHelpers: true,
+		}),
 		resolve(),
 		commonjs(),
 		json(),
-		babel({
-			exclude: 'node_modules/**',
-		}),
 		uglify(),
 	],
 	dest: 'build.js',
