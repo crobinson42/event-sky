@@ -2,7 +2,7 @@
   "name": "event-sky",
   "version": "0.0.0-development",
   "publishConfig": {
-    "tag": "stable"
+    "tag": "latest"
   },
   "release": {
     "branch": "master"
