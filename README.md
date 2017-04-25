@@ -9,8 +9,8 @@ When designing javascript apps it's best to keep modules/features loosely couple
 [![Build Status](https://travis-ci.org/crobinson42/event-sky.svg?branch=master)](https://travis-ci.org/crobinson42/event-sky)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
-[![forthebadge](https://img.shields.io/badge/CommonJs-yellow.svg)](http://nodejs.org)
-[![forthebadge](https://img.shields.io/badge/Browser-orange.svg)](http://nodejs.org)
+[![forthebadge](https://img.shields.io/badge/Module-CommonJs-green.svg)](http://pizza.com)
+[![forthebadge](https://img.shields.io/badge/Browser-EventSky-orange.svg)](http://pizza.com)
 
 [![forthebadge](https://img.shields.io/badge/Mom%20Made-Pizza%20Rolls-blue.svg)](http://pizza.com)
 
