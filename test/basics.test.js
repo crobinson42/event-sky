@@ -15,6 +15,10 @@ describe('EventSky provides the basics', () => {
     expect(EventSky.events[eventName].on[handlerId]).toEqual(handler1)
 	})
 
+	test('.[when](eventName) increments the id to be unique', () => {
+		// todo:
+	})
+
 	test('.trigger & .off are chainable', () => {
     const handler = sinon.spy()
 
@@ -36,6 +40,10 @@ describe('EventSky provides the basics', () => {
 		EventSky.trigger('trigger', 'data')
 
     expect(handler.calledWith('data')).toBeTruthy()
+	})
+
+	test('.trigger will warn if a handler/func does not exist', () => {
+		// todo:
 	})
 
 	test('.off removes handler by eventId', () => {

@@ -1,14 +1,12 @@
 import utils from './utils'
-import config from './config'
 
 class EventSky {
 	constructor () {
 		this.config = {
-			restrictToExpected: false,
 			firehose: false,
+			ignoreDuplicateHandler: false, // warns about duplicate event/handler
 		}
 
-		this._config = config
 		this._utils = utils
 
 		// map of events
@@ -68,23 +66,20 @@ class EventSky {
 	 * @param eventName {string} the name of the event
 	 * @returns {EventSky}
 	 */
-	allOff (eventName) {
-		delete this.events[eventName]
-		this._firehose(`.off.all("${eventName}") removed all event handlers`)
+	allOff (event) {
+		delete this.events[event]
 
-		this.events[eventName] = this._utils.createNewEventMap()
+		this._firehose(`.off.all("${event}") removed all event handlers`)
+
+		this.events[event] = this._utils.createNewEventMap()
 
 		return this
 	}
 
 	trigger (event, data) {
-		if (this.config.restrictToExpected) {
-			if (!Object.keys(this.events).includes(event)) {
-				this._firehose(`"${event}" triggered and is not an expected event "restrictToExpected = true"`)
+		if (!this._utils.validateEventName(this, event)) return this
 
-				return this
-			}
-		} else if (!this.events[event]) {
+		if (!this.events[event]) {
 			this._firehose(`"${event}" triggered with no handlers setup`)
 
 			return this
@@ -94,39 +89,63 @@ class EventSky {
 
 		// beforeAll
 		const beforeAll = this.events[event].beforeAll
-		try {
-			Object.keys(beforeAll).forEach(key => beforeAll[key](data))
-		} catch (e) {
-			console.error(`EventSky error: ${event} beforeAll handler errored`, { error: e, data: data })
-		}
+
+		Object.keys(beforeAll).forEach(key => {
+			try {
+				beforeAll[key](data)
+			} catch (e) {
+				if (!beforeAll[key]) { // check if the method exists
+					console.error(`EventSky error: .beforeAll('${event}', ...) handler does not exist`, { eventId: key, data: data })
+				} else { // else show the method errored
+					console.error(`EventSky error: .beforeAll('${event}', ${on[key].name || ('anonymous')}) handler trapped an error`, { error: e, data: data })
+				}
+			}
+		})
 
 		// on
 		const on = this.events[event].on
-		try {
-			Object.keys(on).forEach(key => on[key](data))
-		} catch (e) {
-			console.error(`EventSky error: ${event} on handler errored`, { error: e, data: data })
-		}
+
+		Object.keys(on).forEach(key => {
+			try {
+				on[key](data)
+			} catch (e) {
+				if (!on[key]) { // check if the method exists
+					console.error(`EventSky error: .on('${event}', ...) handler does not exist`, { eventId: key, data: data })
+				} else { // else show the method errored
+					console.error(`EventSky error: .on('${event}', ${on[key].name || ('anonymous')}) handler trapped an error`, { error: e, data: data })
+				}
+			}
+		})
 
 		// once
 		const once = this.events[event].once
-		try {
-			Object.keys(once).forEach(key => {
+
+		Object.keys(once).forEach(key => {
+			try {
 				once[key](data)
-				// remove handler
-				this.off(event, once[key](data))
-			})
-		} catch (e) {
-			console.error(`EventSky error: ${event} once handler errored`, { error: e, data: data })
-		}
+			} catch (e) {
+				if (!once[key]) { // check if the method exists
+					console.error(`EventSky error: .once('${event}', ...) handler does not exist`, { eventId: key, data: data })
+				} else { // else show the method errored
+					console.error(`EventSky error: .once('${event}', ${on[key].name || ('anonymous')}) handler trapped an error`, { error: e, data: data })
+				}
+			}
+		})
 
 		// afterAll
 		const afterAll = this.events[event].afterAll
-		try {
-			Object.keys(afterAll).forEach(key => afterAll[key](data))
-		} catch (e) {
-			console.error(`EventSky error: ${event} afterAll handler errored`, { error: e, data: data })
-		}
+
+		Object.keys(afterAll).forEach(key => {
+			try {
+				afterAll[key](data)
+			} catch (e) {
+				if (!afterAll[key]) { // check if the method exists
+					console.error(`EventSky error: .afterAll('${event}', ...) handler does not exist`, { eventId: key, data: data })
+				} else { // else show the method errored
+					console.error(`EventSky error: .afterAll('${event}', ${on[key].name || ('anonymous')}) handler trapped an error`, { error: e, data: data })
+				}
+			}
+		})
 
 		return this
 	}

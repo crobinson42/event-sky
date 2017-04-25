@@ -5,11 +5,12 @@ export default {
 	 * This provides a format for event map objects
 	 * @returns {{}}
 	 */
-	createNewEventMap () {
+	createNewEventMap (eventName) {
 		return {
 			// aggregate number of handlers for this event
 			handlers: 0,
 			_handlers: 0,
+			_name: eventName,
 			on: {},
 			once: {},
 			beforeAll: {},
@@ -31,18 +32,16 @@ export default {
 				return this
 			}
 
-			// first check if we're restricting to expected only
-			if (this.config.restrictToExpected) {
-				if (!Object.keys(this.events).includes(event)) {
-					this._firehose(`"${event}" handler cannot be set because it is not an expected event "restrictToExpected = true"`)
-
-					return this
-				}
-			}
-
 			// ensure the event exists and is setup on the event store
 			if (!this.events[event]) {
-				this.events[event] = this._utils.createNewEventMap()
+				this.events[event] = this._utils.createNewEventMap(event)
+			}
+
+			// check if the event and handler are a duplicate
+			if (this.events[event][when] && this.events[event][when] === handler) {
+				if (!this.config.ignoreDuplicateHandler) {
+					console.warn(`EventSky warning: duplicate handler for .${when}('${event}')`)
+				}
 			}
 
 			this.events[event].handlers++
@@ -52,5 +51,17 @@ export default {
 
 			return eventId
 		}
+	},
+
+	validateEventName (context, eventName) {
+		if (!context) {
+			return console.error('EventSky._utils needs to be passed a valid context param')
+		} else if (!eventName || typeof eventName !== 'string') {
+			console.error('EventSky error: .trigger(event) did not receive a string param')
+
+			return false
+		}
+
+		return true
 	},
 }
