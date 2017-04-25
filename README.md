@@ -1,7 +1,7 @@
 ## Event Sky (event-sky)
-An event aggregate utility for front-end apps.
+An event pub/sub aggregate utility for javascript apps.
  
-When designing front-end apps it's best to keep modules/features loosely coupled. A great method for accomplishing this is events. "Event Sky" was designed to help your apps work without knowing about eachother by utilizing the events with Event Sky.
+When designing javascript apps it's best to keep modules/features loosely coupled. A great method for accomplishing this is events via publish/subscribe handlers. "Event Sky" was designed to help your apps work without knowing about eachother by utilizing the events with Event Sky.
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 
