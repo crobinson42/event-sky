@@ -19,6 +19,10 @@ class EventSky {
 		this.beforeAll = this._utils.curryWhenHandler.bind(this)('beforeAll')
 		this.afterAll = this._utils.curryWhenHandler.bind(this)('afterAll')
 
+		// bind methods
+		this.off = this.off.bind(this)
+		this.trigger = this.trigger.bind(this)
+
 		// extend a chain call for eventSky.off.all()
 		this.off.all = this.allOff.bind(this)
 	}
@@ -30,7 +34,7 @@ class EventSky {
 	 * @param handler
 	 * @returns {EventSky}
 	 */
-	off = (eventOrId, handler) => {
+	off (eventOrId, handler) {
 		// iterate all events by names
 		Object.keys(this.events).forEach(_eventName => {
 			// iterate each 'when' event lifecycle and look for eventId or handler to remove
@@ -66,7 +70,7 @@ class EventSky {
 	 * @param eventName {string} the name of the event
 	 * @returns {EventSky}
 	 */
-	allOff = (event) => {
+	allOff (event) {
 		delete this.events[event]
 
 		this._firehose(`.off.all("${event}") removed all event handlers`)
@@ -76,7 +80,7 @@ class EventSky {
 		return this
 	}
 
-	trigger = (event, data) => {
+	trigger (event, data) {
 		if (!this._utils.validateEventName(this, event)) return this
 
 		if (!this.events[event]) {
