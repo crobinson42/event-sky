@@ -3,7 +3,7 @@ An event pub/sub aggregate utility for javascript apps.
  
 When designing javascript apps it's best to keep modules/features loosely coupled. A great method for accomplishing this is events via publish/subscribe handlers. "Event Sky" was designed to help your apps work without knowing about eachother by utilizing the events with Event Sky.
 
-[![npm version](https://badge.fury.io/js/event-sky.svg)](https://badge.fury.io/js/event-sky)]
+[![npm version](https://badge.fury.io/js/event-sky.svg)](https://badge.fury.io/js/event-sky)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 [![Build Status](https://travis-ci.org/crobinson42/event-sky.svg?branch=master)](https://travis-ci.org/crobinson42/event-sky)
