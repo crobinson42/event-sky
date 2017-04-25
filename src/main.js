@@ -30,7 +30,7 @@ class EventSky {
 	 * @param handler
 	 * @returns {EventSky}
 	 */
-	off (eventOrId, handler) {
+	off = (eventOrId, handler) => {
 		// iterate all events by names
 		Object.keys(this.events).forEach(_eventName => {
 			// iterate each 'when' event lifecycle and look for eventId or handler to remove
@@ -66,7 +66,7 @@ class EventSky {
 	 * @param eventName {string} the name of the event
 	 * @returns {EventSky}
 	 */
-	allOff (event) {
+	allOff = (event) => {
 		delete this.events[event]
 
 		this._firehose(`.off.all("${event}") removed all event handlers`)
@@ -76,7 +76,7 @@ class EventSky {
 		return this
 	}
 
-	trigger (event, data) {
+	trigger = (event, data) => {
 		if (!this._utils.validateEventName(this, event)) return this
 
 		if (!this.events[event]) {
