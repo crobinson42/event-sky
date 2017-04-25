@@ -2,10 +2,10 @@
   "name": "event-sky",
   "version": "0.0.0-development",
   "publishConfig": {
-    "tag": "next"
+    "tag": "stable"
   },
   "release": {
-    "branch": "develop"
+    "branch": "master"
   },
   "description": "javascript event pub/sub utility",
   "main": "build.js",
