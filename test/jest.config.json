@@ -1,0 +1,6 @@
+{
+  "testRegex": "(/test/.*|\\.(test))\\.(js)$",
+  "transform": {
+    "^.+\\.(js)$": "<rootDir>/node_modules/jest-babel-preprocessor/preprocessor.js"
+  }
+}

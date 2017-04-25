@@ -1,50 +1,119 @@
-# v1 with API changes coming soon
-> To use the v1 API, use `npm i event-sky@next` The docs will be updated within the week.
-
 ## Event Sky (event-sky)
 An event aggregate utility for front-end apps.
  
 When designing front-end apps it's best to keep modules/features loosely coupled. A great method for accomplishing this is events. "Event Sky" was designed to help your apps work without knowing about eachother by utilizing the events with Event Sky.
 
-eventSky is set as a property on the window object by default.
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 
-The available trigger sequences are 'on', 'before', & 'after'. Each will return an eventId which can optionaly be stored:
+An event pub-sub aggregate utility for javascript environments.
+
+### Usage
+
+`EventSky` is bundled as a UMD (universal module design) and can be used in the following ways:
+
+#### Browser
+
+  ```
+  <script src="https://unpkg.com/event-sky@x.x.x/build.js" />
+
+  <script>
+    EventSky.on('testEvent', console.info)
+
+    EventSke.trigger('testEvent', 'It works!')
+
+    console.log(EventSky.events)
+  </script>
+  ```
+#### Commonjs - Node/Browserify/Webpack
+
+`npm i -S event-sky` or `yarn add event-sky`
 ```
-var newMessageEventId = eventSky.on('newMessage', function callback(data) { *do something with data* });
-                        eventSky.before('newMessage'...
-                        eventSky.after('newMessage'...
-                        eventSky.once('newMessage'...
+const EventSky = require('event-sky')
 ```
-To trigger an event by name or by eventId:
+
+> Note: `EventSky` exports a singleton pattern module. This means it's the same
+object across require/import's in your commonjs environment, ie:
+
 ```
-eventSky.trigger('newMessage', 'this string will get passed to the callback, it can be an object, or whatever you like');
+/* file1.js */
+
+const eventSky = require('event-sky')
+
+eventSky.on('testSingleton', (msg) => console.log(msg))
 ```
-OR
+
 ```
-eventSky.trigger(newMessageEventId, 'more data...');
-eventSky.trigger(newMessageEventId, { key : 'value...'});
+/* file2.js */
+
+const eventSky = require('event-sky')
+
+eventSky.trigger('testSingleton', 'The singleton pattern works!')
 ```
-To remove an event:
+
+
+--------------------
+
+## API
+
+### Event Hook Lifecycle
+
+You can add event handlers in different lifecycle hooks, `beforeAll`, `on`, `once`, `afterAll`
+
 ```
-eventSky.off(newMessageEventId);
-eventSky.off([newMessageEventId1, newMessageEventId2, newMessageEventId3]);
-eventSky.off({ event : eventId });
+const eventSky = require('event-sky')
+
+eventSky.on('newMessage', (data) => { console.log(data) })
+eventSky.beforeAll('newMessage'...)
+eventSky.afterAll('newMessage'...)
+eventSky.once('newMessage'...)
 ```
+
+### Trigger Events
+```
+const data = 'some string...'
+
+eventSky.trigger('newMessage', data)
+```
+
+
+### Turn Handlers Off
+```
+// by event id
+const eventId = eventSky.on('newMessage', (data) => { console.log(data) })
+
+eventSky.off(eventId)
+
+// or by event name and handler
+const handler = (data) => { console.log(data) }
+
+eventSky.on('newMessage', handler)
+
+eventSky.off('newMessage', handler)
+```
+
+A convenience method is available to turn all handlers off associated with an event name, ie:
+
+```
+eventSky.beforeAll('eventName', () => { /* ... */ })
+
+eventSky.on('eventName`, () => { /* ... */ })
+
+// remove all lifecycle hooks for event name "eventName"
+eventSky.off.all('eventName')
+```
+
+### Firehose
+
 For development purposes you can initialize eventSky to see all event activity in the console:
 ```
-eventSky.init({ firehose : true }); // firehose=true will console.log all activity for events, helps with debugging
+eventSky.config.firehose = true
 ```
-ALSO
+
+### Registered Events
+
+You can debug `EventSky` by checking the registered events and lifecycles via:
+
 ```
-console.dir(eventSky.dev);
+console.dir(eventSky.events)
 ```
-Configurable evnironment
-Node.js module:
-```
-GLOBAL.eventSky
-```
-Client/Browser:
-```
-window.eventSky
-```
-Configurable namespace - at the top of the eventSky.js file, you can config the variable 'namespace' to be whatever you prefer.
+
