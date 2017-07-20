@@ -19,6 +19,10 @@ class EventSky {
 		this.beforeAll = this._utils.curryWhenHandler.bind(this)('beforeAll')
 		this.afterAll = this._utils.curryWhenHandler.bind(this)('afterAll')
 
+		// bind methods
+		this.off = this.off.bind(this)
+		this.trigger = this.trigger.bind(this)
+
 		// extend a chain call for eventSky.off.all()
 		this.off.all = this.allOff.bind(this)
 	}

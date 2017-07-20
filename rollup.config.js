@@ -19,5 +19,5 @@ export default {
 		uglify(),
 	],
 	dest: 'build.js',
-	sourceMap: true,
+	sourceMap: false,
 }
